@@ -1,0 +1,16 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Polyhex {
+  n                     Int
+  canonized_form        Bytes         @id
+  is_processed_for_next Boolean       @default(false)
+
+  @@index([n, is_processed_for_next, canonized_form])
+}
