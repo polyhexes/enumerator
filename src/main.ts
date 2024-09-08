@@ -22,7 +22,7 @@ export async function main(upTo: number): Promise<void> {
       const buffer = toBuffer(trivialOnlySolution);
       await prisma.polyhex.upsert({
         where: { canonized_form: buffer },
-        create: { n: i, canonized_form: buffer },
+        create: { n: i, canonized_form: buffer, symmetry_group: "All" },
         update: {},
       });
     } else {
@@ -33,21 +33,22 @@ export async function main(upTo: number): Promise<void> {
         if (!job) break;
         await prisma.$transaction(async (tx) => {
           const previous = fromBuffer(job.canonized_form);
-          for (const buffer of Array.from(new Array(previous.length)).flatMap(
-            (_, i) => [
-              ...v([...previous, [previous[i][0] + 1, previous[i][1]]]),
-              ...v([...previous, [previous[i][0] - 1, previous[i][1]]]),
-              ...v([...previous, [previous[i][0] + 1, previous[i][1] + 1]]),
-              ...v([...previous, [previous[i][0] - 1, previous[i][1] - 1]]),
-              ...v([...previous, [previous[i][0], previous[i][1] + 1]]),
-              ...v([...previous, [previous[i][0], previous[i][1] - 1]]),
-            ]
-          )) {
+          for (const [buffer, symmetryGroup] of Array.from(
+            new Array(previous.length)
+          ).flatMap((_, i) => [
+            ...v([...previous, [previous[i][0] + 1, previous[i][1]]]),
+            ...v([...previous, [previous[i][0] - 1, previous[i][1]]]),
+            ...v([...previous, [previous[i][0] + 1, previous[i][1] + 1]]),
+            ...v([...previous, [previous[i][0] - 1, previous[i][1] - 1]]),
+            ...v([...previous, [previous[i][0], previous[i][1] + 1]]),
+            ...v([...previous, [previous[i][0], previous[i][1] - 1]]),
+          ])) {
             await prisma.polyhex.upsert({
               where: { n: i, canonized_form: buffer },
               create: {
                 n: i,
                 canonized_form: buffer,
+                symmetry_group: symmetryGroup,
               },
               update: {},
             });

@@ -7,10 +7,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum SymmetryGroup {
+  None
+  Mirror0
+  Mirror30
+  Rotation2Fold
+  Rotation2FoldMirrorAll
+  Rotation3Fold
+  Rotation3FoldMirror0
+  Rotation3FoldMirror30
+  Rotation6Fold
+  All
+}
+
 model Polyhex {
   n                     Int
   canonized_form        Bytes         @id
   is_processed_for_next Boolean       @default(false)
+  symmetry_group        SymmetryGroup
 
   @@index([n, is_processed_for_next, canonized_form])
 }

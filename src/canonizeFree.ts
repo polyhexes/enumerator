@@ -1,10 +1,14 @@
+import { SymmetryGroup } from "@prisma/client";
 import { canonizeFixed } from "./canonizeFixed";
 import { flipX } from "./flipX";
 import { rotate } from "./rotate";
 import { toBuffer } from "./toBuffer";
+import { bufferEqual } from "./util/bufferEqual";
 import { Coord } from "./util/coord";
 
-export function canonizeFree(fixed: Coord[]) {
+export function canonizeFree(
+  fixed: Coord[]
+): [buffer: Buffer, symmetryGroup: SymmetryGroup] {
   const canonized = canonizeFixed(fixed);
   const c60 = canonizeFixed(rotate(fixed));
   const c120 = canonizeFixed(rotate(c60));
@@ -43,5 +47,28 @@ export function canonizeFree(fixed: Coord[]) {
     f240Buffer,
     f300Buffer,
   ].sort(Buffer.compare)[0];
-  return buffer;
+  if (bufferEqual(canonizedBuffer, c60Buffer)) {
+    if (bufferEqual(canonizedBuffer, flippedBuffer)) {
+      return [buffer, "All"];
+    }
+    return [buffer, "Rotation6Fold"];
+  } else if (bufferEqual(canonizedBuffer, f180Buffer)) {
+    if (bufferEqual(canonizedBuffer, flippedBuffer)) {
+      return [buffer, "Rotation2FoldMirrorAll"];
+    }
+    return [buffer, "Rotation2Fold"];
+  } else if (bufferEqual(canonizedBuffer, flippedBuffer)) {
+    if (bufferEqual(canonizedBuffer, c120Buffer)) {
+      return [buffer, "Rotation3FoldMirror30"];
+    }
+    return [buffer, "Mirror30"];
+  } else if (bufferEqual(canonizedBuffer, c120Buffer)) {
+    if (bufferEqual(canonizedBuffer, f180Buffer)) {
+      return [buffer, "Rotation3FoldMirror0"];
+    }
+    return [buffer, "Rotation3Fold"];
+  } else if (bufferEqual(canonizedBuffer, f180Buffer)) {
+    return [buffer, "Mirror0"];
+  }
+  return [buffer, "None"];
 }
