@@ -52,7 +52,7 @@ export function canonizeFree(
       return [buffer, "All"];
     }
     return [buffer, "Rotation6Fold"];
-  } else if (bufferEqual(canonizedBuffer, f180Buffer)) {
+  } else if (bufferEqual(canonizedBuffer, c180Buffer)) {
     if (bufferEqual(canonizedBuffer, flippedBuffer)) {
       return [buffer, "Rotation2FoldMirrorAll"];
     }
@@ -63,7 +63,7 @@ export function canonizeFree(
     }
     return [buffer, "Mirror30"];
   } else if (bufferEqual(canonizedBuffer, c120Buffer)) {
-    if (bufferEqual(canonizedBuffer, f180Buffer)) {
+    if (bufferEqual(canonizedBuffer, c180Buffer)) {
       return [buffer, "Rotation3FoldMirror0"];
     }
     return [buffer, "Rotation3Fold"];
